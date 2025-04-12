@@ -1,4 +1,4 @@
-baseURL = "https://example.com"
+baseURL = "abhinand20.github.io"
 languageCode = 'en-us'
 title = 'Abhinand Jha'
 theme = 'minimalistic'
@@ -11,6 +11,10 @@ canonifyURLs = true
 [taxonomies]
   category = "categories"
   tag = "tags"
+
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'
 
 [params]
 name = "Abhinand Jha"
