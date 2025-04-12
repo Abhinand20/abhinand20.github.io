@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Consistent Hashing on Abhinand Jha</title>
+    <link>http://localhost:1313/categories/consistent-hashing/</link>
+    <description>Recent content in Consistent Hashing on Abhinand Jha</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 05 Feb 2022 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/categories/consistent-hashing/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Consistent Hashing: Chord</title>
+      <link>http://localhost:1313/blogs/2022-02-05-chord/</link>
+      <pubDate>Sat, 05 Feb 2022 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/blogs/2022-02-05-chord/</guid>
+      <description>&lt;p&gt;Reference paper:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://pdos.csail.mit.edu/papers/chord:sigcomm01/chord_sigcomm.pdf&#34;&gt;Chord: A Scalable Peer-to-peer Lookup Service for Internet Applications&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;&#xA;&lt;p&gt;One of the fundamental problems in peer-to-peer (P2P) applications is to efficiently locate a particular node in the network. Stoica et al. present the design for a scalable and efficient P2P distributed lookup protocol named Chord. The authors first give an overview of consistent hashing which is widely used in such scenarios. They highlight the scalability issues of consistent hashing that are caused by each node having to maintain the state of all of the other nodes in the network. In order to overcome this limitation, they propose the use of distributed hash-based indexing and routing algorithms that allow Chord to handle a large number of nodes and data lookups efficiently. In the proposed protocol, each node only needs to maintain a reference to its immediate successor and only a subset of all other nodes in the network, leading to better scalability. Chord is also able to handle node join and leave operations without requiring significant changes to the network’s structure, which contributes to its robustness in dynamic networks. The authors provide a thorough analysis of the performance of Chord and show that it performs well in terms of time complexity that scales logarithmically with the number of Chord nodes. Lastly, the authors also prove the fault-tolerance capabilities of Chord through experiments.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

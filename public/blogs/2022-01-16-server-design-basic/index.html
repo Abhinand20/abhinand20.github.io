@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Flash: An efficient and portable Web Server - Abhinand Jha</title>
+        
+        
+        <link rel="apple-touch-icon" sizes="180x180" href="http://localhost:1313/favicon_io/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon_io/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon_io/favicon-16x16.png">
+        <link rel="manifest" href="http://localhost:1313/favicon_io/site.webmanifest">        
+        <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
+        <link rel="preload" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" as="style">
+        
+        
+        <style>
+            html, body {
+                background-color: #121212;
+                color: #f3f4f6;
+            }            
+            .border {
+                border-color: #374151;
+            }            
+            .carousel-item {
+                display: inline-block;
+                margin: 0 1rem;
+            }            
+            .flex {
+                display: flex;
+            }
+            .flex-col {
+                flex-direction: column;
+            }
+            
+            @media (min-width: 768px) {
+                .md\:flex-row {
+                    flex-direction: row;
+                }
+            }
+            
+            .tech-carousel {
+                overflow: hidden;
+                width: 100%;
+                padding: 1rem 0;
+            }
+            
+            .carousel-track {
+                white-space: nowrap;
+            }
+        </style>
+        
+        <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+        <link rel="stylesheet" type='text/css' href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+        <script>
+            
+            if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        </script>
+        <style>
+            :root {
+                color-scheme: dark;
+            }
+
+            .tech-icon {
+                filter: grayscale(100%) brightness(200%);
+                transition: all 0.3s ease;
+            }
+            .tech-icon:hover {
+                filter: none;
+            }
+            
+            @keyframes scroll {
+                0% {
+                    transform: translateX(0);
+                }
+                100% {
+                    transform: translateX(-100%);
+                }
+            }
+            
+            .tech-carousel {
+                width: 100%;
+                padding: 1rem 0;
+            }
+            
+            .tech-track {
+                width: fit-content;
+                animation: scroll 20s linear infinite;
+            }
+            
+            .tech-track:hover {
+                animation-play-state: paused;
+            }
+            
+            .tech-slide {
+                float: left;
+            }
+        </style>
+    </head>
+    <body class="min-h-screen bg-[#121212] text-gray-100">
+        
+<head>
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C0RTF18BT4"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-C0RTF18BT4');
+    </script>
+    
+    <link rel="stylesheet" type='text/css' href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+    </style>
+</head>
+<header class="py-6 relative">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex justify-between items-center">
+                <a href="http://localhost:1313/" class="text-xl font-bold text-white hover:text-gray-300 transition-colors duration-300">
+                    Abhinand Jha
+                </a>
+                
+                <button id="mobile-menu-button" class="md:hidden text-gray-300 hover:text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>            
+            
+            <nav class="hidden md:flex flex-wrap justify-center items-center gap-4 md:gap-6">
+                
+                <a href="http://localhost:1313/experience/" class="inline-block text-lg text-gray-300 hover:text-white transition-colors duration-300 ">Experience</a>
+                <a href="http://localhost:1313/projects/" class="inline-block text-lg text-gray-300 hover:text-white transition-colors duration-300 ">Research & Projects</a>
+                <a href="http://localhost:1313/blogs/" class="inline-block text-lg text-gray-300 hover:text-white transition-colors duration-300 ">Blog</a>
+                <a href="http://localhost:1313/contact/" class="inline-block text-lg text-gray-300 hover:text-white transition-colors duration-300 ">Contact</a>
+            </nav>
+            <div class="hidden md:flex justify-end">
+                <div class="flex items-center">
+                    <span class="text-lg text-gray-300 mr-2">Local Time:</span>
+                    <div id="local-time" class="text-lg text-gray-300"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="mobile-menu" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden transition-all duration-300">
+        <div class="flex flex-col h-full">
+            <div class="flex justify-between items-center p-6 border-b border-gray-800">
+                <span class="text-xl font-bold text-white">Menu</span>
+                <button id="mobile-menu-close" class="text-gray-300 hover:text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <nav class="flex flex-col p-6 space-y-4">
+                <a href="http://localhost:1313/experience/" class="text-xl text-gray-300 hover:text-white transition-colors duration-300 ">Experience</a>
+                <a href="http://localhost:1313/projects/" class="inline-block text-lg text-gray-300 hover:text-white transition-colors duration-300 ">Research & Projects</a>
+                <a href="http://localhost:1313/blogs/" class="text-xl text-gray-300 hover:text-white transition-colors duration-300 ">Blog</a>
+                <a href="http://localhost:1313/contact/" class="text-xl text-gray-300 hover:text-white transition-colors duration-300 ">Contact</a>
+            </nav>
+            <div class="mt-auto p-6 border-t border-gray-800">
+                <div class="flex items-center justify-center">
+                    <span class="text-lg text-gray-300 mr-2">Local Time:</span>
+                    <div id="mobile-local-time" class="text-lg text-gray-300"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<script>
+    
+    function updateLocalTime() {
+        const timeElements = document.querySelectorAll('#local-time, #mobile-local-time');
+        timeElements.forEach(element => {
+            if (element) {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                element.textContent = timeString;
+            }
+        });
+    }
+    updateLocalTime();
+    setInterval(updateLocalTime, 1000);
+
+    
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenuClose = document.getElementById('mobile-menu-close');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    function toggleMobileMenu() {
+        const isHidden = mobileMenu.classList.contains('hidden');
+        if (isHidden) {
+            mobileMenu.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; 
+        } else {
+            mobileMenu.classList.add('hidden');
+            document.body.style.overflow = ''; 
+        }
+    }
+
+    mobileMenuButton.addEventListener('click', toggleMobileMenu);
+    mobileMenuClose.addEventListener('click', toggleMobileMenu);
+
+    
+    const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+    mobileMenuLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            toggleMobileMenu();
+        });
+    });
+
+    
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            themeToggleLightIcon.classList.remove('hidden');
+            themeToggleDarkIcon.classList.add('hidden');
+        } else {
+            themeToggleLightIcon.classList.add('hidden');
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
+    }
+</script> 
+        <main>
+            
+<article class="w-full md:w-3/4 lg:w-1/2 mx-auto px-4 py-12 prose prose-invert prose-lg">
+    
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">Flash: An efficient and portable Web Server</h1>
+    
+    <p class="text-gray-400 text-sm mb-8">January 16, 2022</p>
+
+    
+    <div>
+        <p>The reference paper can be found <a href="https://www.usenix.org/legacy/events/usenix99/full_papers/pai/pai.pdf">here.</a></p>
+<h2 id="summary">Summary</h2>
+<p>In this paper, the authors propose Flash – an efficient and portable web server that utilizes an asymmetric multi-process even-driven (AMPED) architecture. This architecture is a combination of the single-process event-driven (SPED) and multi-process/multi-thread (MP/MT) architectures. Flash consists of a main process that handles HTTP requests in an event-driven fashion, and it uses several asynchronous helper processes to perform blocking operations on the disk. The authors provide a brief overview of the different types of server architectures and analyze their server’s performance compared to Zeus (SPED) and Apache (MP/MT) servers as benchmarks. The authors also introduce several important optimizations in caching, byte alignment, file access via mmap and checking for memory residency before calling helper processes which result in large performance gains. Most of these optimizations are fairly standard in present-day web servers but at the time the paper was published, these ideas were quite novel.</p>
+<h2 id="positive-points">Positive Points</h2>
+<ul>
+<li>The paper provides great insights about key points to consider while designing web servers. It also provides a detailed comparison based on performance characteristics of each design choice.</li>
+<li>The evaluation experiments are conducted in an exhaustive manner with carefully drawn out workloads that tested the server’s performance at its maximum capacity. The evaluation workflow is exemplary.</li>
+<li>The paper introduces many optimization ideas that are widely used and applicable in present-day web servers. The ideas of application-level caching with both data and computation caches, DMA for scatter-gather support etc. are ideas that were quite novel at the time the paper was published.</li>
+</ul>
+<h2 id="drawbacks">Drawbacks</h2>
+<ul>
+<li>At the time this paper was published, most web servers mainly handled static data. However, in present day servers the content is increasingly dynamic. Therefore the claim that most non-blocking IO operations are just disk reads is not true anymore.</li>
+<li>The paper does not talk about sendfile() which is a non-blocking system call that uses Direct Memory Access (DMA) to copy a file’s contents into OS memory directly.</li>
+<li>The authors ran most of the evaluation experiments on in a LAN setting and their WAN evaluations were also simulated on LAN. Nowadays, most of the clients interact with servers through WAN.</li>
+</ul>
+<h2 id="research-questions">Research Questions</h2>
+<ol>
+<li>Present day web-servers serve increasingly dynamic content – how would a server like Flash handle such work loads? Creating a new process for each dynamic request may not be feasible.</li>
+<li>Why did Flash lose against competitors like Apache, which also have adopted many ideas from Flash?</li>
+<li>Can sendfile() (and related syscalls) be used to handle blocking disk operations instead of multiple threads/processes? Are there any caveats?</li>
+</ol>
+
+    </div>
+
+    
+    
+    <div class="mt-12 pt-4 border-t border-gray-700">
+        <h4 class="text-lg font-semibold mb-2">Tags:</h4>
+        <div class="flex flex-wrap gap-2">
+            
+            <span class="px-2 py-1 text-xs bg-[#121212] text-gray-100 border border-gray-800 rounded-md transition-all duration-300">Computer Science</span>
+            
+            <span class="px-2 py-1 text-xs bg-[#121212] text-gray-100 border border-gray-800 rounded-md transition-all duration-300">System Design</span>
+            
+            <span class="px-2 py-1 text-xs bg-[#121212] text-gray-100 border border-gray-800 rounded-md transition-all duration-300">Servers</span>
+            
+            <span class="px-2 py-1 text-xs bg-[#121212] text-gray-100 border border-gray-800 rounded-md transition-all duration-300">Backend</span>
+            
+            <span class="px-2 py-1 text-xs bg-[#121212] text-gray-100 border border-gray-800 rounded-md transition-all duration-300">Software Engineering</span>
+            
+        </div>
+    </div>
+    
+</article>
+
+        </main>
+        
+<footer class="mt-32 text-center">
+    <div class="max-w-3xl mx-auto">
+        <div class="border-t border-gray-800 pt-5">
+            <div class="flex flex-col items-center justify-center gap-2">                
+                <p class="text-gray-500 text-xm ">© 2025 Abhinand Jha</p>
+                <p class="text-gray-500 text-xm pb-12"> Vibe coded using <a href="https://gohugo.io/" target="_blank" class="animated-link text-gray-400 hover:text-gray-200">Hugo</a> and <a href="https://www.cursor.com/" target="_blank" class="animated-link text-gray-400 hover:text-gray-200">Cursor</a>. Take a look at my <a href="https://github.com/abhinand20" target="_blank" class="animated-link text-gray-400 hover:text-gray-200">GitHub</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .animated-link {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .animated-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: -1px;
+        left: 0;
+        background-color: #ffffff;
+        transition: width 0.3s ease-in-out;
+    }
+    
+    .animated-link:hover::after {
+        width: 100%;
+    }
+</style> 
+    </body>
+</html> 

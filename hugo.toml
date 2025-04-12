@@ -1,0 +1,164 @@
+baseURL = "https://example.com"
+languageCode = 'en-us'
+title = 'Abhinand Jha'
+theme = 'minimalistic'
+
+# URL handling
+relativeURLs = true
+canonifyURLs = true
+
+# Taxonomy configuration
+[taxonomies]
+  category = "categories"
+  tag = "tags"
+
+[params]
+name = "Abhinand Jha"
+location = "Seattle, WA"
+description = "Engineer of soft-wares at **[Google](https://www.google.com).** Lover of Guitars, Books and Coffee."
+profile_image = "/images/profile.png"
+github = "https://github.com/abhinand20"
+github_username = "abhinand20"
+email = "reachabhinandjha@gmail.com"
+linkedin = "https://www.linkedin.com/in/abhinandj"
+linkedin_username = "abhinandj"
+resume_link = "https://abhinand20.github.io/static/assets/CV_Abhinand.pdf"
+google_scholar = "https://scholar.google.com/citations?user=lGpjXvsAAAAJ&hl=en"
+
+
+[[params.experience]]
+company = "Google"
+role = "Software Engineer"
+period = "February 2024 - Present"
+logo = "/images/company/google-logo.png"
+description = "Building the future of Google Cloud Compute — scalable, seamless software deployments for millions of CPUs, GPUs and TPUs."
+responsibilities = [
+    "Building the next generation of Cloud Compute software deployments to help scale GCP to more than 10 million VMs, general purpose hardware (CPU, GPU) as well as application specific hardware (TPU).",
+    "Built infrastructure to reduce time-to-market for New Product Introductions (NPIs) by 20%.",
+    "Mentoring engineers on the Go programming language."
+]
+
+[[params.experience]]
+company = "Google"
+role = "Software Engineer Intern"
+period = "May 2023 - Aug 2023"
+logo = "/images/company/google-logo.png"
+description = "Worked on Vector databases, LLMs and Data pipelines at Google's scale."
+responsibilities = [
+    "Engineered a full-stack AI application for Google Cloud Support using LLMs and Recommender Systems, reducing customer response times by 30%. Developed APIs, front-end, MLOps pipelines (Kubeflow), and scalable GCP data pipelines for efficient ingestion (1M+ weekly records) into vector databases and model fine-tuning."
+]
+
+[[params.experience]]
+company = "Carnegie Mellon University"
+role = "Researcher"
+period = "Jan 2022 - Dec 2023"
+logo = "/images/cmu-logo.png"
+description = "Published reasearch on Multimodal LLMs. Dabbled into applied Deep Learning in medical imaging."
+responsibilities = [
+    "You can find my research on Google Scholar by clicking [here](https://scholar.google.com/citations?user=lGpjXvsAAAAJ&hl=en).",
+]
+
+[[params.experience]]
+company = "Deloitte"
+role = "Data Scientist"
+period = "Sept 2020 - Dec 2021"
+logo = "/images/company/deloitte-logo.png"
+description = "Built ML Models, Data Pipelines and won an NLP hackathon."
+responsibilities = [
+   "Drove significant impact through diverse projects: won a firm-wide Hackathon (1st/30) with a production tool saving 100 hrs/yr, built APIs & MLOps pipelines for Auto-ML, and led cloud data migration (50M+ records) saving 40 hrs/wk."
+]
+
+
+[[params.education]]
+institution = "Carnegie Mellon University"
+degree = "MSc. Electrical and Computer Engineering"
+period = "2022 - 2024"
+location = "Pittsburgh, PA"
+description = "Grade: 4.0/4.0"
+logo = "/images/cmu-logo.png"  # Optional
+
+[[params.education]]
+institution = "Manipal Institute of Technology"
+degree = "BSc. Electrical and Electronics Engineering"
+location = "Karnataka, India"
+period = "2016 - 2020"
+description = "Grade: 4.0/4.0"
+logo = "/images/manipal-logo.png"
+
+
+[[params.projects]]
+    title = "KOALA: Knowledge Conflict Augmentations for Robustness in Vision Language Models"
+    description = "Framework for evaluating and improving robustness of Multimodal LLMs using image augmentations and fine-tuning."
+    tech = "Python, PyTorch, Matplotlib, Vision Language Models"
+    image = "/images/projects/koala.png"
+    link = "https://arxiv.org/pdf/2502.14908"
+
+[[params.projects]]
+    title = "MathFormer: Solve math equations using NLP and transformers"
+    description = "Implementation of a deep neural network model that learns to expand single variable polynomials. Model input is factorized sequence and output is predicted expanded sequence."
+    tech = "PyTorch, transformers, numpy, matplotlib"
+    image = "/images/projects/mathformer.png"
+    link = "https://github.com/Abhinand20/MathFormer"
+
+
+[[params.projects]]
+    title = "Secure-AES: A highly secure Verilog implementation of the AES algorithm"
+    description = "A novel approach to protect AES processors from Side Channel Attacks"
+    tech = "Computer Architecture, Security, Verilog"
+    image = "/images/projects/aes.png"
+    link = "https://ieeexplore.ieee.org/document/9301437"
+
+[[params.projects]]
+    title = "EMUgo: 8-bit CPU emulator"
+    description = "A functional interpreter for the CHIP-8 virtual machine, a simple, 8-bit computer architecture used to run games and programs from the 1970s."
+    tech = "Golang, emulation, computer architecture"
+    image = "/images/projects/emugo.png"
+    link = "https://github.com/Abhinand20/emugo"
+
+[[params.projects]]
+    title = "cpPyox: Simple scripting language (Educational)"
+    description = "A high-level, dynamically typed, interpreted scripting language with python-esque frontend. It is implemented on a fast and memory efficient C++ backend."
+    tech = "C++, tree-walk-interpreter, lexer-parser, compiler-design, language-design"
+    image = "/images/projects/language.jpg"
+    link = "https://github.com/Abhinand20/cpPyox"
+
+
+[[params.projects]]
+    title = "AUTO-ONTO: Automatic text ontology generation."
+    description = "Automatically extract keyphrases from text spanning across vast domains, and generate an ontology."
+    tech = "Python, NLP, Machine Learning, FastAPI"
+    image = "/images/projects/auto-onto.jpg"
+    link = "https://github.com/Abhinand20/AUTO-ONTO"
+
+[[params.projects]]
+    title = "BusTub: Relational Database Management System (Educational)"
+    description = "BusTub is a relational database management system built at Carnegie Mellon University, it supports basic SQL and comes with an interactive shell."
+    tech = "C++, Concurrency, Algorithms"
+    image = "/images/projects/bustub.png"
+    link = "https://github.com/cmu-db/bustub"
+
+[[params.projects]]
+    title = "RetainLLM: Retain everything you've ever read"
+    description = "A full-stack app deployed on a local RaspberryPi to quickly generate notes and chapter summaries for research papers, e-books and podcasts."
+    tech = "Docker, Python, FastAPI, LLM"
+    image = "/images/projects/retain.jpg"
+    link = "https://github.com/Abhinand20/retainLLM"
+
+[menu]
+  [[menu.main]]
+    name = "Experience"
+    url = "/experience/"
+    weight = 1
+  [[menu.main]]
+    name = "Projects"
+    url = "/projects/"
+    weight = 2
+  [[menu.main]]
+    name = "Blogs"
+    url = "/blogs/"
+    weight = 3
+  [[menu.main]]
+    name = "Contact Me"
+    url = "/contact/"
+    weight = 4
+

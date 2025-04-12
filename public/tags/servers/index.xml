@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Servers on Abhinand Jha</title>
+    <link>http://localhost:1313/tags/servers/</link>
+    <description>Recent content in Servers on Abhinand Jha</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 20 Jan 2022 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/servers/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Advanced topics in server design</title>
+      <link>http://localhost:1313/blogs/2022-01-20-server-design-advanced/</link>
+      <pubDate>Thu, 20 Jan 2022 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/blogs/2022-01-20-server-design-advanced/</guid>
+      <description>&lt;p&gt;Reference papers:&lt;/p&gt;&#xA;&lt;p&gt;[1]  &lt;a href=&#34;https://www.usenix.org/legacy/publications/library/proceedings/usenix99/full_papers/banga/banga.pdf&#34;&gt;A Scalable and Explicit Event Delivery Mechanism for UNIX&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;[2]  &lt;a href=&#34;https://www.usenix.org/legacy/event/usenix04/tech/general/full_papers/brecht/brecht.pdf&#34;&gt;accept()able Strategies for Improving Web Server Performance&lt;/a&gt;&lt;/p&gt;&#xA;&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;&#xA;&lt;p&gt;Server performance depends on a number of factors and in order to design high performance and scalable servers, it is important to carefully reason about these factors. Authors of [1] and [2] argue that a server’s policies for accepting new client connections [2] and the OS event-notification mechanism [1], have a signif- icant effect on a server’s performance. The authors in [1] highlight that web servers using the OS system call select (or poll) to check for events, scale poorly with the event rate. To mitigate the scalability issue they propose an event-based notification mechanism wherein the kernel maintains a queue of events and notifies the application once an event is ready. This leads to better scalability as the kernel performs work proportional to the number of events. The authors in [2] study another important aspect of server design – the policy for accepting new connections. Through their experiments, they argue that finding the correct balance between accepting new connections and processing existing connections can improve the performance of web servers. They conduct experiments on three different servers and vary the number of consecutively accepted connections using an accept-limit parameter – the results show that well-tuned accept policies yield reasonable improvements as compared to the baseline policy.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Flash: An efficient and portable Web Server</title>
+      <link>http://localhost:1313/blogs/2022-01-16-server-design-basic/</link>
+      <pubDate>Sun, 16 Jan 2022 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/blogs/2022-01-16-server-design-basic/</guid>
+      <description>&lt;p&gt;The reference paper can be found &lt;a href=&#34;https://www.usenix.org/legacy/events/usenix99/full_papers/pai/pai.pdf&#34;&gt;here.&lt;/a&gt;&lt;/p&gt;&#xA;&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;&#xA;&lt;p&gt;In this paper, the authors propose Flash – an efficient and portable web server that utilizes an asymmetric multi-process even-driven (AMPED) architecture. This architecture is a combination of the single-process event-driven (SPED) and multi-process/multi-thread (MP/MT) architectures. Flash consists of a main process that handles HTTP requests in an event-driven fashion, and it uses several asynchronous helper processes to perform blocking operations on the disk. The authors provide a brief overview of the different types of server architectures and analyze their server’s performance compared to Zeus (SPED) and Apache (MP/MT) servers as benchmarks. The authors also introduce several important optimizations in caching, byte alignment, file access via mmap and checking for memory residency before calling helper processes which result in large performance gains. Most of these optimizations are fairly standard in present-day web servers but at the time the paper was published, these ideas were quite novel.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

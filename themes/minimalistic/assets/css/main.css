@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: #121212;
+    color: #ffffff;
+    @apply bg-[#121212] text-gray-100;
+}
+
+.tech-icon {
+    filter: grayscale(100%) brightness(200%);
+    transition: all 0.3s ease;
+}
+
+.tech-icon:hover {
+    filter: none;
+}
+
+.experience-timeline {
+    position: relative;
+}
+
+.experience-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #333;
+} 
+
+.description-links a {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+.description-links a:hover {
+    color: #2563eb;
+}
