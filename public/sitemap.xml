@@ -2,120 +2,120 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/</loc>
+    <loc>abhinand20.github.io/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/backend/</loc>
+    <loc>abhinand20.github.io/categories/backend/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/backend/</loc>
+    <loc>abhinand20.github.io/tags/backend/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/</loc>
+    <loc>abhinand20.github.io/categories/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/computer-science/</loc>
+    <loc>abhinand20.github.io/categories/computer-science/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/computer-science/</loc>
+    <loc>abhinand20.github.io/tags/computer-science/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/distributed-systems/</loc>
+    <loc>abhinand20.github.io/categories/distributed-systems/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/distributed-systems/</loc>
+    <loc>abhinand20.github.io/tags/distributed-systems/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/file-systems/</loc>
+    <loc>abhinand20.github.io/categories/file-systems/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/file-systems/</loc>
+    <loc>abhinand20.github.io/tags/file-systems/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blogs/2023-05-12-borg/</loc>
+    <loc>abhinand20.github.io/blogs/2023-05-12-borg/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/software-engineering/</loc>
+    <loc>abhinand20.github.io/categories/software-engineering/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/software-engineering/</loc>
+    <loc>abhinand20.github.io/tags/software-engineering/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/storage/</loc>
+    <loc>abhinand20.github.io/categories/storage/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/storage/</loc>
+    <loc>abhinand20.github.io/tags/storage/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/system-design/</loc>
+    <loc>abhinand20.github.io/categories/system-design/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/system-design/</loc>
+    <loc>abhinand20.github.io/tags/system-design/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
+    <loc>abhinand20.github.io/tags/</loc>
     <lastmod>2023-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blogs/2023-04-12-xen-vm/</loc>
+    <loc>abhinand20.github.io/blogs/2023-04-12-xen-vm/</loc>
     <lastmod>2023-04-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blogs/2022-05-12-paxos/</loc>
+    <loc>abhinand20.github.io/blogs/2022-05-12-paxos/</loc>
     <lastmod>2022-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blogs/2022-03-10-live-migration/</loc>
+    <loc>abhinand20.github.io/blogs/2022-03-10-live-migration/</loc>
     <lastmod>2022-03-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blogs/2022-02-10-gfs/</loc>
+    <loc>abhinand20.github.io/blogs/2022-02-10-gfs/</loc>
     <lastmod>2022-02-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/consistent-hashing/</loc>
+    <loc>abhinand20.github.io/categories/consistent-hashing/</loc>
     <lastmod>2022-02-05T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/consistent-hashing/</loc>
+    <loc>abhinand20.github.io/tags/consistent-hashing/</loc>
     <lastmod>2022-02-05T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blogs/2022-02-05-chord/</loc>
+    <loc>abhinand20.github.io/blogs/2022-02-05-chord/</loc>
     <lastmod>2022-02-05T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blogs/2022-01-24-tail-at-scale/</loc>
+    <loc>abhinand20.github.io/blogs/2022-01-24-tail-at-scale/</loc>
     <lastmod>2022-01-24T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/networks/</loc>
+    <loc>abhinand20.github.io/categories/networks/</loc>
     <lastmod>2022-01-24T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/networks/</loc>
+    <loc>abhinand20.github.io/tags/networks/</loc>
     <lastmod>2022-01-24T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blogs/2022-01-20-server-design-advanced/</loc>
+    <loc>abhinand20.github.io/blogs/2022-01-20-server-design-advanced/</loc>
     <lastmod>2022-01-20T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/servers/</loc>
+    <loc>abhinand20.github.io/categories/servers/</loc>
     <lastmod>2022-01-20T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/servers/</loc>
+    <loc>abhinand20.github.io/tags/servers/</loc>
     <lastmod>2022-01-20T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blogs/2022-01-16-server-design-basic/</loc>
+    <loc>abhinand20.github.io/blogs/2022-01-16-server-design-basic/</loc>
     <lastmod>2022-01-16T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/compter-science/</loc>
+    <loc>abhinand20.github.io/tags/compter-science/</loc>
     <lastmod>2022-01-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/end-to-end-principle/</loc>
+    <loc>abhinand20.github.io/categories/end-to-end-principle/</loc>
     <lastmod>2022-01-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/end-to-end-principle/</loc>
+    <loc>abhinand20.github.io/tags/end-to-end-principle/</loc>
     <lastmod>2022-01-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blogs/2022-01-14-end-to-end/</loc>
+    <loc>abhinand20.github.io/blogs/2022-01-14-end-to-end/</loc>
     <lastmod>2022-01-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blogs/</loc>
+    <loc>abhinand20.github.io/blogs/</loc>
   </url><url>
-    <loc>http://localhost:1313/contact/</loc>
+    <loc>abhinand20.github.io/contact/</loc>
   </url><url>
-    <loc>http://localhost:1313/experience/</loc>
+    <loc>abhinand20.github.io/experience/</loc>
   </url><url>
-    <loc>http://localhost:1313/projects/</loc>
+    <loc>abhinand20.github.io/projects/</loc>
   </url>
 </urlset>
