@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Distributed systems: Stragglers"
 date:   2022-01-24
 desc: "My views on the tail at scale problem"

@@ -2,87 +2,87 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on Abhinand Jha</title>
-    <link>abhinand20.github.io/categories/</link>
+    <link>//localhost:50020/categories/</link>
     <description>Recent content in Categories on Abhinand Jha</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 12 May 2023 00:00:00 +0000</lastBuildDate>
-    <atom:link href="abhinand20.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="//localhost:50020/categories/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Backend</title>
-      <link>abhinand20.github.io/categories/backend/</link>
+      <link>//localhost:50020/categories/backend/</link>
       <pubDate>Fri, 12 May 2023 00:00:00 +0000</pubDate>
-      <guid>abhinand20.github.io/categories/backend/</guid>
+      <guid>//localhost:50020/categories/backend/</guid>
       <description></description>
     </item>
     <item>
       <title>Computer Science</title>
-      <link>abhinand20.github.io/categories/computer-science/</link>
+      <link>//localhost:50020/categories/computer-science/</link>
       <pubDate>Fri, 12 May 2023 00:00:00 +0000</pubDate>
-      <guid>abhinand20.github.io/categories/computer-science/</guid>
+      <guid>//localhost:50020/categories/computer-science/</guid>
       <description></description>
     </item>
     <item>
       <title>Distributed Systems</title>
-      <link>abhinand20.github.io/categories/distributed-systems/</link>
+      <link>//localhost:50020/categories/distributed-systems/</link>
       <pubDate>Fri, 12 May 2023 00:00:00 +0000</pubDate>
-      <guid>abhinand20.github.io/categories/distributed-systems/</guid>
+      <guid>//localhost:50020/categories/distributed-systems/</guid>
       <description></description>
     </item>
     <item>
       <title>File Systems</title>
-      <link>abhinand20.github.io/categories/file-systems/</link>
+      <link>//localhost:50020/categories/file-systems/</link>
       <pubDate>Fri, 12 May 2023 00:00:00 +0000</pubDate>
-      <guid>abhinand20.github.io/categories/file-systems/</guid>
+      <guid>//localhost:50020/categories/file-systems/</guid>
       <description></description>
     </item>
     <item>
       <title>Software Engineering</title>
-      <link>abhinand20.github.io/categories/software-engineering/</link>
+      <link>//localhost:50020/categories/software-engineering/</link>
       <pubDate>Fri, 12 May 2023 00:00:00 +0000</pubDate>
-      <guid>abhinand20.github.io/categories/software-engineering/</guid>
+      <guid>//localhost:50020/categories/software-engineering/</guid>
       <description></description>
     </item>
     <item>
       <title>Storage</title>
-      <link>abhinand20.github.io/categories/storage/</link>
+      <link>//localhost:50020/categories/storage/</link>
       <pubDate>Fri, 12 May 2023 00:00:00 +0000</pubDate>
-      <guid>abhinand20.github.io/categories/storage/</guid>
+      <guid>//localhost:50020/categories/storage/</guid>
       <description></description>
     </item>
     <item>
       <title>System Design</title>
-      <link>abhinand20.github.io/categories/system-design/</link>
+      <link>//localhost:50020/categories/system-design/</link>
       <pubDate>Fri, 12 May 2023 00:00:00 +0000</pubDate>
-      <guid>abhinand20.github.io/categories/system-design/</guid>
+      <guid>//localhost:50020/categories/system-design/</guid>
       <description></description>
     </item>
     <item>
       <title>Consistent Hashing</title>
-      <link>abhinand20.github.io/categories/consistent-hashing/</link>
+      <link>//localhost:50020/categories/consistent-hashing/</link>
       <pubDate>Sat, 05 Feb 2022 00:00:00 +0000</pubDate>
-      <guid>abhinand20.github.io/categories/consistent-hashing/</guid>
+      <guid>//localhost:50020/categories/consistent-hashing/</guid>
       <description></description>
     </item>
     <item>
       <title>Networks</title>
-      <link>abhinand20.github.io/categories/networks/</link>
+      <link>//localhost:50020/categories/networks/</link>
       <pubDate>Mon, 24 Jan 2022 00:00:00 +0000</pubDate>
-      <guid>abhinand20.github.io/categories/networks/</guid>
+      <guid>//localhost:50020/categories/networks/</guid>
       <description></description>
     </item>
     <item>
       <title>Servers</title>
-      <link>abhinand20.github.io/categories/servers/</link>
+      <link>//localhost:50020/categories/servers/</link>
       <pubDate>Thu, 20 Jan 2022 00:00:00 +0000</pubDate>
-      <guid>abhinand20.github.io/categories/servers/</guid>
+      <guid>//localhost:50020/categories/servers/</guid>
       <description></description>
     </item>
     <item>
       <title>End-to-End Principle</title>
-      <link>abhinand20.github.io/categories/end-to-end-principle/</link>
+      <link>//localhost:50020/categories/end-to-end-principle/</link>
       <pubDate>Fri, 14 Jan 2022 00:00:00 +0000</pubDate>
-      <guid>abhinand20.github.io/categories/end-to-end-principle/</guid>
+      <guid>//localhost:50020/categories/end-to-end-principle/</guid>
       <description></description>
     </item>
   </channel>

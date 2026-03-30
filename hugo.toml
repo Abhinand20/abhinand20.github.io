@@ -1,7 +1,7 @@
 baseURL = "abhinand20.github.io"
 languageCode = 'en-us'
 title = 'Abhinand Jha'
-theme = 'minimalistic'
+theme = ['minimalistic', 'hugo-bearblog']
 
 # URL handling
 relativeURLs = true
@@ -26,7 +26,7 @@ github_username = "abhinand20"
 email = "reachabhinandjha@gmail.com"
 linkedin = "https://www.linkedin.com/in/abhinandj"
 linkedin_username = "abhinandj"
-resume_link = "https://abhinand20.github.io/static/assets/CV_Abhinand.pdf"
+resume_link = "assets/CV_Abhinand.pdf"
 google_scholar = "https://scholar.google.com/citations?user=lGpjXvsAAAAJ&hl=en"
 
 

@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Flash: An efficient and portable Web Server"
 date:   2022-01-16
 desc: "My views on the Flash web server"

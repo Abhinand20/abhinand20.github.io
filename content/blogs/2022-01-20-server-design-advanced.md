@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Advanced topics in server design"
 date:   2022-01-20
 desc: "My views on advanced server design concepts"

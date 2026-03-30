@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Live VM Migration"
 date:   2022-03-10
 desc: "My views on live VM migration techniques"
