@@ -24,14 +24,5 @@
     <li>No posts yet</li>
     {{ end }}
   </ul>
-  {{ if not .Data.Singular }}
-  <small>
-    <div>
-      {{ range .Site.Taxonomies.tags }}
-      <a href="{{ .Page.Permalink }}">#{{ .Page.Title }}</a>&nbsp;
-      {{ end }}
-    </div>
-  </small>
-  {{ end }}
 </content>
 {{ end }}

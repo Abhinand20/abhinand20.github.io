@@ -16,14 +16,6 @@
                 {{ with .Params.summary }}
                     <p class="text-gray-400 mb-4">{{ . }}</p>
                 {{ end }}
-                <div class="flex flex-wrap gap-2">
-                    {{/* Use tags from the markdown front matter */}}
-                    {{ range .Params.tags }}
-                    {{ if ne . "" }}
-                    <span class="px-2 py-1 text-xs bg-[#121212] text-gray-100 border border-gray-800 rounded-md transition-all duration-300">{{ . }}</span>
-                    {{ end }}
-                    {{ end }}
-                </div>
             </div>
             {{ end }}
         {{ end }}

@@ -1,19 +1,2 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>End-to-End Principle on Abhinand Jha</title>
-    <link>//localhost:50020/categories/end-to-end-principle/</link>
-    <description>Recent content in End-to-End Principle on Abhinand Jha</description>
-    <generator>Hugo</generator>
-    <language>en-us</language>
-    <lastBuildDate>Fri, 14 Jan 2022 00:00:00 +0000</lastBuildDate>
-    <atom:link href="//localhost:50020/categories/end-to-end-principle/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>The End-to-End Principle in system design</title>
-      <link>//localhost:50020/blogs/2022-01-14-end-to-end/</link>
-      <pubDate>Fri, 14 Jan 2022 00:00:00 +0000</pubDate>
-      <guid>//localhost:50020/blogs/2022-01-14-end-to-end/</guid>
-      <description>&lt;p&gt;The reference paper can be found &lt;a href=&#34;https://pages.cs.wisc.edu/~bart/739/papers/end-to-end.pdf&#34;&gt;here.&lt;/a&gt;&lt;/p&gt;&#xA;&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;&#xA;&lt;p&gt;In this paper, the authors provide an argument that follows the “Occam’s razor” principle in the context of designing systems. The central problem that the authors address is deciding the appropriate boundaries between the functions of a distributed system, and where to place these functions in the system. The end- to-end argument aims to make the lower levels of a system as simple as possible by implementing functions closer to the endpoints. The authors do not propose the end-to-end argument as a strict rule, but as a set of rational principles to keep in mind while designing layered systems. This argument has contributed to the rapid growth of the Internet as we know it today (TCP/IP) and it is also found in several other applications such as end-to-end encryption, reliable file transmission etc.&lt;/p&gt;</description>
-    </item>
-  </channel>
-</rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>End-to-End Principle on Abhinand Jha</title><link>/categories/end-to-end-principle/</link><description>Recent content in End-to-End Principle on Abhinand Jha</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Fri, 14 Jan 2022 00:00:00 +0000</lastBuildDate><atom:link href="/categories/end-to-end-principle/index.xml" rel="self" type="application/rss+xml"/><item><title>The End-to-End Principle in system design</title><link>/blogs/2022-01-14-end-to-end/</link><pubDate>Fri, 14 Jan 2022 00:00:00 +0000</pubDate><guid>/blogs/2022-01-14-end-to-end/</guid><description>The reference paper can be found here.
+Summary In this paper, the authors provide an argument that follows the “Occam’s razor” principle in the context of designing systems. The central problem that the authors address is deciding the appropriate boundaries between the functions of a distributed system, and where to place these functions in the system. The end- to-end argument aims to make the lower levels of a system as simple as possible by implementing functions closer to the endpoints.</description></item></channel></rss>

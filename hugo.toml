@@ -1,4 +1,4 @@
-baseURL = "abhinand20.github.io"
+baseURL = ""
 languageCode = 'en-us'
 title = 'Abhinand Jha'
 theme = ['minimalistic', 'hugo-bearblog']

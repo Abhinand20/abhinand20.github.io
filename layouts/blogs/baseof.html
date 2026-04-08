@@ -5,6 +5,12 @@
   <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett" />
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function() {
+      var theme = localStorage.getItem('blog-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   {{- partial "favicon.html" . -}}
   <title>{{- block "title" . }}{{ with .Title }}{{ . }} | {{ end }}{{ .Site.Title }}{{- end }}</title>
 
@@ -30,6 +36,7 @@
       {{ range .Site.Menus.main }}
       <a href="{{ .URL }}">{{ .Name }}</a>
       {{ end }}
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark/light mode">☀️</button>
     </nav>
   </header>
   <main>
@@ -40,6 +47,23 @@
   </footer>
 
   {{- partial "custom_body.html" . -}}
+  <script>
+    (function() {
+      var btn = document.getElementById('theme-toggle');
+      function updateIcon() {
+        var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+        btn.textContent = isDark ? '\u2600\uFE0F' : '\uD83C\uDF19';
+      }
+      updateIcon();
+      btn.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        var next = current === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('blog-theme', next);
+        updateIcon();
+      });
+    })();
+  </script>
 </body>
 
 </html>
