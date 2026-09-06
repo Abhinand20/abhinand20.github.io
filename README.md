@@ -96,7 +96,7 @@ For the mobile preview, prepare an isolated static package:
 Then ask Codex in ChatGPT to **deploy the prepared preview privately with
 ChatGPT Sites**. Codex uploads only `.blog/sites-preview`, returns the direct
 article URL, and keeps the Site owner-only. The stable Site is
-`abhinand-blog-drafts.stony-lark-1124.chatgpt.site`; each deployment creates a
+`abhinand-blog-drafts.reachabhinandjha.chatgpt.site`; each deployment creates a
 new version at the same address. Sites publishing is performed through the
 ChatGPT/Codex Sites integration, not by `scripts/blog` or a long-lived API token.
 
