@@ -1,0 +1,815 @@
+#!/usr/bin/env python3
+"""Human-in-the-loop content pipeline for the Hugo blog."""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import os
+from pathlib import Path
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+from typing import Any, Sequence
+
+
+SCRIPT_ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(os.environ.get("BLOG_ROOT", SCRIPT_ROOT)).resolve()
+IDEAS_DIR = ROOT / ".blog" / "ideas"
+RESEARCH_DIR = ROOT / ".blog" / "research"
+REVIEWS_DIR = ROOT / ".blog" / "reviews"
+SITES_PREVIEW_DIR = ROOT / ".blog" / "sites-preview"
+CONTENT_DIR = ROOT / "content" / "blogs"
+HOSTING_CONFIG = ROOT / ".openai" / "hosting.json"
+RESEARCH_SCHEMA = ROOT / ".codex" / "schemas" / "blog-research.schema.json"
+DRAFT_SCHEMA = ROOT / ".codex" / "schemas" / "blog-draft.schema.json"
+REVIEW_SCHEMA = ROOT / ".codex" / "schemas" / "blog-review.schema.json"
+
+
+class BlogError(RuntimeError):
+    pass
+
+
+def command_from_env(name: str, default: str) -> list[str]:
+    value = os.environ.get(name, default)
+    command = shlex.split(value)
+    if not command:
+        raise BlogError(f"{name} cannot be empty")
+    return command
+
+
+def run(
+    command: Sequence[str],
+    *,
+    capture: bool = False,
+    check: bool = True,
+    cwd: Path = ROOT,
+) -> subprocess.CompletedProcess[str]:
+    try:
+        return subprocess.run(
+            list(command),
+            cwd=cwd,
+            check=check,
+            text=True,
+            stdout=subprocess.PIPE if capture else None,
+            stderr=subprocess.PIPE if capture else None,
+        )
+    except FileNotFoundError as error:
+        raise BlogError(f"Required command not found: {command[0]}") from error
+    except subprocess.CalledProcessError as error:
+        detail = (error.stderr or error.stdout or "").strip()
+        suffix = f"\n{detail}" if detail else ""
+        raise BlogError(f"Command failed ({error.returncode}): {shlex.join(command)}{suffix}") from error
+
+
+def slugify(value: str) -> str:
+    slug = value.lower().strip()
+    slug = re.sub(r"[^a-z0-9]+", "-", slug)
+    return slug.strip("-") or "untitled"
+
+
+def now_iso() -> str:
+    return dt.datetime.now().astimezone().isoformat(timespec="seconds")
+
+
+def yaml_string(value: str) -> str:
+    # JSON strings and arrays are also valid YAML, with reliable escaping.
+    return json.dumps(value, ensure_ascii=False)
+
+
+def yaml_array(values: Sequence[str]) -> str:
+    return json.dumps(list(values), ensure_ascii=False)
+
+
+def split_front_matter(text: str) -> tuple[list[str], str]:
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        raise BlogError("Expected YAML front matter delimited by ---")
+    try:
+        end = next(index for index, line in enumerate(lines[1:], 1) if line.strip() == "---")
+    except StopIteration as error:
+        raise BlogError("Front matter is missing its closing ---") from error
+    body = "\n".join(lines[end + 1 :]).strip()
+    return lines[1:end], body
+
+
+def scalar_value(raw: str) -> Any:
+    value = raw.strip()
+    if not value:
+        return ""
+    if value.lower() == "true":
+        return True
+    if value.lower() == "false":
+        return False
+    try:
+        return json.loads(value)
+    except json.JSONDecodeError:
+        return value.strip("'\"")
+
+
+def front_matter_values(lines: Sequence[str]) -> dict[str, Any]:
+    values: dict[str, Any] = {}
+    for line in lines:
+        match = re.match(r"^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$", line)
+        if match:
+            values[match.group(1)] = scalar_value(match.group(2))
+    return values
+
+
+def render_document(front_matter: Sequence[str], body: str) -> str:
+    return "---\n" + "\n".join(front_matter) + "\n---\n\n" + body.rstrip() + "\n"
+
+
+def set_front_matter(text: str, updates: dict[str, str]) -> str:
+    lines, body = split_front_matter(text)
+    pending = dict(updates)
+    updated: list[str] = []
+    for line in lines:
+        match = re.match(r"^([A-Za-z_][A-Za-z0-9_-]*):", line)
+        if match and match.group(1) in pending:
+            key = match.group(1)
+            updated.append(f"{key}: {pending.pop(key)}")
+        else:
+            updated.append(line)
+    for key, value in pending.items():
+        updated.append(f"{key}: {value}")
+    return render_document(updated, body)
+
+
+def resolve_idea(reference: str) -> Path:
+    candidate = Path(reference).expanduser()
+    if not candidate.is_absolute():
+        direct = (ROOT / candidate).resolve()
+        if direct.is_file():
+            return direct
+        candidate = IDEAS_DIR / reference
+    if candidate.is_file():
+        return candidate.resolve()
+    name = reference.removesuffix(".md")
+    matches = sorted(IDEAS_DIR.glob(f"*{name}*.md")) if IDEAS_DIR.exists() else []
+    if len(matches) == 1:
+        return matches[0].resolve()
+    if len(matches) > 1:
+        raise BlogError(f"Idea reference is ambiguous: {reference}")
+    raise BlogError(f"Idea not found: {reference}")
+
+
+def resolve_post(reference: str) -> Path:
+    candidate = Path(reference).expanduser()
+    if not candidate.is_absolute():
+        direct = (ROOT / candidate).resolve()
+        if direct.is_file():
+            candidate = direct
+        else:
+            name = reference if reference.endswith(".md") else f"{reference}.md"
+            candidate = (CONTENT_DIR / name).resolve()
+    else:
+        candidate = candidate.resolve()
+    try:
+        candidate.relative_to(CONTENT_DIR.resolve())
+    except ValueError as error:
+        raise BlogError(f"Post must be inside {CONTENT_DIR}") from error
+    if not candidate.is_file():
+        matches = sorted(CONTENT_DIR.glob(f"*{Path(reference).stem}*.md"))
+        if len(matches) == 1:
+            return matches[0].resolve()
+        raise BlogError(f"Post not found: {reference}")
+    return candidate
+
+
+def require_schema(path: Path) -> None:
+    if not path.is_file():
+        raise BlogError(f"Missing Codex output schema: {path}")
+
+
+def codex_json(prompt: str, schema: Path, *, live_search: bool = False) -> dict[str, Any]:
+    require_schema(schema)
+    codex = command_from_env("BLOG_CODEX_BIN", "codex")
+    with tempfile.NamedTemporaryFile(prefix="blog-codex-", suffix=".json", delete=False) as output:
+        output_path = Path(output.name)
+    try:
+        command = codex + (["--search"] if live_search else []) + [
+            "exec",
+            "--sandbox",
+            "read-only",
+            "--ephemeral",
+            "--output-schema",
+            str(schema),
+            "--output-last-message",
+            str(output_path),
+            prompt,
+        ]
+        result = run(command, capture=True)
+        raw = output_path.read_text(encoding="utf-8").strip()
+        if not raw:
+            raw = (result.stdout or "").strip()
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError as error:
+            raise BlogError("Codex did not return valid structured JSON") from error
+        if not isinstance(value, dict):
+            raise BlogError("Codex returned JSON, but not an object")
+        return value
+    finally:
+        output_path.unlink(missing_ok=True)
+
+
+def validate_generated_draft(
+    value: dict[str, Any], *, kind: str, source_urls: Sequence[str]
+) -> None:
+    for key in ("description", "body_markdown"):
+        if not isinstance(value.get(key), str) or not value[key].strip():
+            raise BlogError(f"Codex output has an invalid {key}")
+    for key in ("categories", "tags"):
+        items = value.get(key)
+        if not isinstance(items, list) or not items or not all(isinstance(item, str) for item in items):
+            raise BlogError(f"Codex output has invalid {key}")
+    citations = {url for url in source_urls if url in value["body_markdown"]}
+    minimum = 2 if kind == "article" else 1
+    if len(citations) < minimum:
+        raise BlogError(
+            f"Draft cites {len(citations)} researched source(s); {kind} requires at least {minimum}"
+        )
+
+
+def validate_research(value: dict[str, Any], *, kind: str) -> None:
+    for key in ("working_thesis", "reader_value"):
+        if not isinstance(value.get(key), str) or not value[key].strip():
+            raise BlogError(f"Research output has an invalid {key}")
+
+    findings = value.get("findings")
+    if not isinstance(findings, list) or len(findings) < 2:
+        raise BlogError("Research output needs at least two findings")
+    outline = value.get("suggested_outline")
+    if not isinstance(outline, list) or len(outline) < 2:
+        raise BlogError("Research output needs a usable outline")
+
+    sources = value.get("sources")
+    minimum = 4 if kind == "article" else 2
+    if not isinstance(sources, list) or len(sources) < minimum:
+        raise BlogError(f"Research for a {kind} needs at least {minimum} sources")
+    urls: list[str] = []
+    for source in sources:
+        if not isinstance(source, dict):
+            raise BlogError("Research output has an invalid source")
+        url = source.get("url")
+        if not isinstance(url, str) or not re.match(r"^https?://", url):
+            raise BlogError(f"Research source is not an HTTP(S) URL: {url}")
+        urls.append(url)
+    if len(set(urls)) != len(urls):
+        raise BlogError("Research source ledger contains duplicate URLs")
+
+    known_urls = set(urls)
+    for item in findings + value.get("counterpoints", []):
+        if not isinstance(item, dict) or not isinstance(item.get("source_urls"), list):
+            raise BlogError("Research evidence has invalid source references")
+        for url in item["source_urls"]:
+            if url not in known_urls:
+                raise BlogError(f"Research evidence references an unlisted source: {url}")
+
+
+def render_research_report(title: str, value: dict[str, Any]) -> str:
+    def evidence(items: Sequence[dict[str, Any]], *, counterpoint: bool = False) -> str:
+        if not items:
+            return "None.\n"
+        rendered: list[str] = []
+        for item in items:
+            label = item["point"] if counterpoint else item["claim"]
+            rendered.append(f"- **{label}**")
+            if not counterpoint:
+                rendered.append(f"  - Why it matters: {item['why_it_matters']}")
+                rendered.append(f"  - Evidence: {item['evidence']}")
+                rendered.append(f"  - Confidence: {item['confidence']}")
+            rendered.append("  - Sources: " + ", ".join(item["source_urls"]))
+        return "\n".join(rendered) + "\n"
+
+    outline = "\n".join(
+        f"- **{item['heading']}** — {item['purpose']}\n"
+        + "\n".join(f"  - {point}" for point in item["points"])
+        for item in value["suggested_outline"]
+    )
+    questions = "\n".join(f"- {item}" for item in value["open_questions"]) or "None."
+    sources = "\n".join(
+        f"- [{source['title']}]({source['url']}) — {source['publisher']}"
+        + (f", {source['published_or_updated']}" if source["published_or_updated"] else "")
+        + f". {source['relevance']}"
+        for source in value["sources"]
+    )
+    return (
+        f"# Research brief: {title}\n\n"
+        f"Generated: {now_iso()}\n\n"
+        f"## Working thesis\n\n{value['working_thesis']}\n\n"
+        f"## Reader value\n\n{value['reader_value']}\n\n"
+        f"## Findings\n\n{evidence(value['findings'])}\n"
+        f"## Counterpoints\n\n{evidence(value['counterpoints'], counterpoint=True)}\n"
+        f"## Open questions\n\n{questions}\n\n"
+        f"## Suggested outline\n\n{outline}\n\n"
+        f"## Source ledger\n\n{sources}\n"
+    )
+
+
+def research_paths(idea_path: Path) -> tuple[Path, Path]:
+    return RESEARCH_DIR / f"{idea_path.stem}.json", RESEARCH_DIR / f"{idea_path.stem}.md"
+
+
+def perform_research(idea_path: Path, *, force: bool = False) -> dict[str, Any]:
+    idea_text = idea_path.read_text(encoding="utf-8")
+    lines, _ = split_front_matter(idea_text)
+    meta = front_matter_values(lines)
+    title = str(meta.get("title", "")).strip()
+    kind = str(meta.get("kind", "article")).strip().lower()
+    if not title:
+        raise BlogError(f"Idea has no title: {idea_path}")
+    if kind not in {"article", "nugget"}:
+        raise BlogError(f"Idea kind must be article or nugget, got: {kind}")
+
+    json_path, report_path = research_paths(idea_path)
+    if json_path.exists() and not force:
+        try:
+            research = json.loads(json_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as error:
+            raise BlogError(f"Invalid saved research JSON: {json_path}") from error
+        if not isinstance(research, dict):
+            raise BlogError(f"Invalid saved research object: {json_path}")
+        validate_research(research, kind=kind)
+        print(f"Using saved research: {json_path.relative_to(ROOT)}")
+        return research
+
+    source_target = "4–10" if kind == "article" else "2–5"
+    prompt = f"""Research this idea independently before it becomes a blog {kind}.
+
+Read and follow EDITORIAL.md. Use live web search. Preserve the author's key
+points as required direction, but test the premise and include evidence that
+complicates or contradicts it. Prefer primary documentation, repositories,
+papers, standards, and first-party announcements. Use trustworthy secondary
+sources only when they add necessary context. Open the source pages; never cite
+a search results page. Check dates and version-sensitive claims as of
+{dt.date.today().isoformat()}.
+
+Return {source_target} distinct sources with direct HTTP(S) URLs. Every source
+URL attached to a finding or counterpoint must also appear in the source ledger.
+Do not invent personal experience, measurements, claims, quotations, or sources.
+Return only the object required by the supplied JSON schema.
+
+IDEA FILE: {idea_path.relative_to(ROOT)}
+
+{idea_text}
+"""
+    research = codex_json(prompt, RESEARCH_SCHEMA, live_search=True)
+    validate_research(research, kind=kind)
+    RESEARCH_DIR.mkdir(parents=True, exist_ok=True)
+    json_path.write_text(json.dumps(research, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    report_path.write_text(render_research_report(title, research), encoding="utf-8")
+    idea_path.write_text(
+        set_front_matter(
+            idea_text,
+            {
+                "status": '"researched"',
+                "research_file": yaml_string(str(report_path.relative_to(ROOT))),
+            },
+        ),
+        encoding="utf-8",
+    )
+    print(report_path.relative_to(ROOT))
+    return research
+
+
+def create_idea(args: argparse.Namespace) -> None:
+    IDEAS_DIR.mkdir(parents=True, exist_ok=True)
+    created = now_iso()
+    path = IDEAS_DIR / f"{created[:10]}-{slugify(args.title)}.md"
+    if path.exists():
+        raise BlogError(f"Idea already exists: {path}")
+    notes = args.notes.strip() if args.notes else "Add the observation, question, or experiment that prompted this idea."
+    points = "\n".join(f"- {point.strip()}" for point in args.point if point.strip())
+    if not points:
+        points = "- Add the points the article must preserve."
+    document = render_document(
+        [
+            f"title: {yaml_string(args.title.strip())}",
+            f"kind: {yaml_string(args.kind)}",
+            f"created: {yaml_string(created)}",
+            'status: "idea"',
+        ],
+        f"## Key points\n\n{points}\n\n## Context\n\n{notes}\n\n"
+        "## Links and evidence\n\n- Add any sources you already trust here.\n",
+    )
+    path.write_text(document, encoding="utf-8")
+    print(path.relative_to(ROOT))
+    print(f"Next: ./scripts/blog research {shlex.quote(str(path.relative_to(ROOT)))}")
+
+
+def research_idea(args: argparse.Namespace) -> None:
+    idea_path = resolve_idea(args.idea)
+    perform_research(idea_path, force=args.force)
+    print(f"Next: ./scripts/blog draft {shlex.quote(str(idea_path.relative_to(ROOT)))}")
+
+
+def draft_from_idea(args: argparse.Namespace) -> None:
+    idea_path = resolve_idea(args.idea)
+    idea_text = idea_path.read_text(encoding="utf-8")
+    lines, _ = split_front_matter(idea_text)
+    meta = front_matter_values(lines)
+    title = str(meta.get("title", "")).strip()
+    kind = str(meta.get("kind", "article")).strip().lower()
+    if not title:
+        raise BlogError(f"Idea has no title: {idea_path}")
+    if kind not in {"article", "nugget"}:
+        raise BlogError(f"Idea kind must be article or nugget, got: {kind}")
+    created = str(meta.get("created", now_iso()))
+    date_prefix = created[:10] if re.match(r"^\d{4}-\d{2}-\d{2}", created) else now_iso()[:10]
+    target = CONTENT_DIR / f"{date_prefix}-{slugify(title)}.md"
+    if target.exists() and not args.force:
+        raise BlogError(f"Draft already exists: {target}. Use --force to replace it.")
+
+    research = perform_research(idea_path, force=args.refresh_research)
+    source_urls = [source["url"] for source in research["sources"]]
+    word_range = "800–1,800" if kind == "article" else "150–500"
+    prompt = f"""Create a {kind} for Abhinand's personal technical blog.
+
+Read and follow EDITORIAL.md in the repository. Treat the idea as authorial
+direction and the private research brief as the factual foundation. Write a
+focused {word_range} word draft. Ground factual claims in the provided research
+and add normal inline Markdown links to the source URLs near the supported
+claims. Do not introduce new factual sources that are absent from the brief.
+Do not invent first-person experience, test results, quotations, or sources.
+Where a personal detail is required but absent, write a conspicuous TODO for the
+author. Use Markdown for body_markdown, but do not include YAML front matter or
+an H1 title. Return only the object required by the supplied JSON schema.
+
+IDEA FILE: {idea_path.relative_to(ROOT)}
+
+{idea_text}
+
+PRIVATE RESEARCH BRIEF (JSON):
+
+{json.dumps(research, indent=2, ensure_ascii=False)}
+"""
+    generated = codex_json(prompt, DRAFT_SCHEMA)
+    validate_generated_draft(generated, kind=kind, source_urls=source_urls)
+    timestamp = now_iso()
+    document = render_document(
+        [
+            f"title: {yaml_string(title)}",
+            f"date: {yaml_string(timestamp)}",
+            f"lastmod: {yaml_string(timestamp)}",
+            "draft: true",
+            f"description: {yaml_string(generated['description'].strip())}",
+            f"categories: {yaml_array(generated['categories'])}",
+            f"tags: {yaml_array(generated['tags'])}",
+            f"content_kind: {yaml_string(kind)}",
+        ],
+        generated["body_markdown"].strip(),
+    )
+    CONTENT_DIR.mkdir(parents=True, exist_ok=True)
+    target.write_text(document, encoding="utf-8")
+    current_idea_text = idea_path.read_text(encoding="utf-8")
+    _, report_path = research_paths(idea_path)
+    idea_path.write_text(
+        set_front_matter(
+            current_idea_text,
+            {
+                "status": '"drafted"',
+                "research_file": yaml_string(str(report_path.relative_to(ROOT))),
+                "draft_file": yaml_string(str(target.relative_to(ROOT))),
+            },
+        ),
+        encoding="utf-8",
+    )
+    print(target.relative_to(ROOT))
+    print(f"Mobile preview build: ./scripts/blog preview-build {shlex.quote(str(target.relative_to(ROOT)))}")
+    print("Local preview:        ./scripts/blog preview-local")
+    print(f"Review:  ./scripts/blog review {shlex.quote(str(target.relative_to(ROOT)))}")
+
+
+def validate_post(path: Path, *, publishing: bool) -> list[str]:
+    text = path.read_text(encoding="utf-8")
+    lines, body = split_front_matter(text)
+    meta = front_matter_values(lines)
+    errors: list[str] = []
+    for field in ("title", "date", "description", "categories", "tags"):
+        if field not in meta or meta[field] in ("", []):
+            errors.append(f"missing front matter field: {field}")
+    if len(body.split()) < 40:
+        errors.append("body is shorter than 40 words")
+    if publishing and re.search(r"\b(?:TODO|TBD|FIXME)\b", text, flags=re.IGNORECASE):
+        errors.append("contains TODO, TBD, or FIXME")
+    if publishing and meta.get("draft") is not False:
+        errors.append("draft is not marked false")
+    return errors
+
+
+def build_site(
+    destination: Path, *, drafts: bool = False, base_url: str | None = None
+) -> None:
+    hugo = command_from_env("BLOG_HUGO_BIN", "hugo")
+    command = hugo + [
+        "--gc",
+        "--minify",
+        "--cleanDestinationDir",
+        "--destination",
+        str(destination),
+    ]
+    if drafts:
+        command.append("--buildDrafts")
+    if base_url is not None:
+        command.extend(["--baseURL", base_url])
+    run(command)
+
+
+def check_post(args: argparse.Namespace) -> None:
+    path = resolve_post(args.post)
+    errors = validate_post(path, publishing=False)
+    if errors:
+        raise BlogError("Post check failed:\n- " + "\n- ".join(errors))
+    with tempfile.TemporaryDirectory(prefix="hugo-check-") as destination:
+        build_site(Path(destination))
+    print(f"OK: {path.relative_to(ROOT)}")
+
+
+def review_post(args: argparse.Namespace) -> None:
+    path = resolve_post(args.post)
+    text = path.read_text(encoding="utf-8")
+    prompt = f"""Act as a rigorous editor for Abhinand's technical blog.
+
+Read EDITORIAL.md, then review the draft below. Check the argument, usefulness,
+clarity, unsupported claims, likely factual errors, missing primary sources,
+voice, and readiness. A TODO, TBD, or FIXME is always blocking. Do not edit any
+file. Return only the object required by the supplied JSON schema.
+
+POST: {path.relative_to(ROOT)}
+
+{text}
+"""
+    review = codex_json(prompt, REVIEW_SCHEMA, live_search=True)
+    REVIEWS_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    output = REVIEWS_DIR / f"{path.stem}-{timestamp}.md"
+
+    def section(name: str, key: str) -> str:
+        items = review.get(key, [])
+        if not isinstance(items, list) or not items:
+            return f"## {name}\n\nNone.\n"
+        return f"## {name}\n\n" + "\n".join(f"- {item}" for item in items) + "\n"
+
+    report = (
+        f"# Editorial review: {path.stem}\n\n"
+        f"**Ready to publish:** {'yes' if review.get('ready_to_publish') else 'no'}\n\n"
+        f"{review.get('summary', '')}\n\n"
+        + section("Strengths", "strengths")
+        + "\n"
+        + section("Blocking issues", "blocking_issues")
+        + "\n"
+        + section("Suggestions", "suggestions")
+    )
+    output.write_text(report, encoding="utf-8")
+    print(output.relative_to(ROOT))
+    print(f"Ready to publish: {'yes' if review.get('ready_to_publish') else 'no'}")
+
+
+def preview_build(args: argparse.Namespace) -> None:
+    path = resolve_post(args.post)
+    errors = validate_post(path, publishing=False)
+    if errors:
+        raise BlogError("Preview build failed:\n- " + "\n- ".join(errors))
+    if not HOSTING_CONFIG.is_file():
+        raise BlogError(f"Missing Sites configuration: {HOSTING_CONFIG}")
+    try:
+        hosting = json.loads(HOSTING_CONFIG.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        raise BlogError(f"Invalid Sites configuration: {HOSTING_CONFIG}") from error
+    if not hosting.get("project_id"):
+        raise BlogError("Sites configuration is missing project_id")
+
+    destination = SITES_PREVIEW_DIR / "dist"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    build_site(destination, drafts=True, base_url="/")
+    if not (destination / "index.html").is_file():
+        raise BlogError("Hugo preview build did not produce dist/index.html")
+    post_output = destination / "blogs" / path.stem / "index.html"
+    if not post_output.is_file():
+        raise BlogError(f"Hugo preview build did not produce {post_output}")
+
+    preview_config = SITES_PREVIEW_DIR / ".openai" / "hosting.json"
+    preview_config.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(HOSTING_CONFIG, preview_config)
+    route = f"/blogs/{path.stem}/"
+    print(f"Preview package: {SITES_PREVIEW_DIR.relative_to(ROOT)}")
+    print(f"Draft route: {route}")
+    print("Next: deploy this package privately with ChatGPT Sites.")
+
+
+def preview_local(args: argparse.Namespace) -> None:
+    hugo = command_from_env("BLOG_HUGO_BIN", "hugo")
+    command = hugo + [
+        "server",
+        "--buildDrafts",
+        "--navigateToChanged",
+        "--disableFastRender",
+        "--bind",
+        args.bind,
+        "--port",
+        str(args.port),
+    ]
+    print(f"Running: {shlex.join(command)}")
+    result = run(command, check=False)
+    if result.returncode:
+        raise BlogError(f"Hugo preview exited with status {result.returncode}")
+
+
+def git_output(*args: str) -> str:
+    return run(["git", *args], capture=True).stdout.strip()
+
+
+def require_publish_confirmation(path: Path, assume_yes: bool) -> None:
+    if assume_yes:
+        return
+    if not sys.stdin.isatty():
+        raise BlogError("Publishing needs an interactive confirmation; pass --yes to confirm")
+    answer = input(f"Publish {path.name}, push it, and deploy it? [y/N] ").strip().lower()
+    if answer not in {"y", "yes"}:
+        raise BlogError("Publish cancelled")
+
+
+def safe_web_root(raw: str) -> Path:
+    path = Path(raw).expanduser()
+    if not path.is_absolute():
+        raise BlogError("BLOG_WEB_ROOT must be an absolute path")
+    resolved = path.resolve()
+    unsafe = {Path("/"), Path.home().resolve(), ROOT.resolve(), ROOT.parent.resolve()}
+    if resolved in unsafe or len(resolved.parts) < 4:
+        raise BlogError(f"Refusing unsafe deployment target: {resolved}")
+    return resolved
+
+
+def deploy_build(build_dir: Path) -> None:
+    web_root = safe_web_root(os.environ.get("BLOG_WEB_ROOT", "/var/www/hugo"))
+    owner = os.environ.get("BLOG_WEB_OWNER", "caddy:caddy")
+    sudo = command_from_env("BLOG_SUDO_BIN", "sudo")
+    run(sudo + ["mkdir", "-p", str(web_root)])
+    run(sudo + ["rsync", "-a", "--delete", f"{build_dir}/", f"{web_root}/"])
+    run(sudo + ["chown", "-R", owner, str(web_root)])
+    print(f"Deployed to {web_root}")
+
+
+def ship_post(args: argparse.Namespace) -> None:
+    path = resolve_post(args.post)
+    require_publish_confirmation(path, args.yes)
+    if git_output("diff", "--cached", "--name-only"):
+        raise BlogError("The Git index already has staged changes. Commit or unstage them before shipping.")
+
+    expected_branch = os.environ.get("BLOG_BRANCH", "hugo-site")
+    current_branch = git_output("branch", "--show-current")
+    if current_branch != expected_branch:
+        raise BlogError(f"Expected branch {expected_branch}, currently on {current_branch}")
+
+    original = path.read_text(encoding="utf-8")
+    live = set_front_matter(
+        original,
+        {"draft": "false", "lastmod": yaml_string(now_iso())},
+    )
+    path.write_text(live, encoding="utf-8")
+    publish_recorded = live == original
+    errors = validate_post(path, publishing=True)
+    if errors:
+        path.write_text(original, encoding="utf-8")
+        raise BlogError("Publish gate failed:\n- " + "\n- ".join(errors))
+
+    try:
+        with tempfile.TemporaryDirectory(prefix="hugo-publish-") as destination:
+            build_dir = Path(destination)
+            build_site(build_dir)
+
+            relative = str(path.relative_to(ROOT))
+            run(["git", "add", "--", relative])
+            staged = git_output("diff", "--cached", "--name-only")
+            if staged:
+                lines, _ = split_front_matter(live)
+                title = str(front_matter_values(lines).get("title", path.stem))
+                message = args.message or f"Publish: {title}"
+                run(["git", "commit", "-m", message, "--", relative])
+                publish_recorded = True
+                print(f"Committed {relative}")
+            else:
+                publish_recorded = True
+                print(f"No source changes to commit for {relative}")
+
+            if not args.no_push:
+                remote = os.environ.get("BLOG_REMOTE", "origin")
+                run(["git", "push", remote, f"HEAD:{expected_branch}"])
+                print(f"Pushed {remote}/{expected_branch}")
+            if not args.no_deploy:
+                deploy_build(build_dir)
+    except Exception:
+        # Restore only when Git has not recorded the publish. Once committed,
+        # preserving the local commit makes a failed push/deploy recoverable.
+        if not publish_recorded:
+            path.write_text(original, encoding="utf-8")
+            run(["git", "restore", "--staged", "--", str(path.relative_to(ROOT))], check=False)
+        raise
+
+
+def list_content(_: argparse.Namespace) -> None:
+    def rows(directory: Path, label: str) -> list[str]:
+        result: list[str] = []
+        if not directory.exists():
+            return result
+        for path in sorted(directory.glob("*.md")):
+            if path.name == "_index.md":
+                continue
+            try:
+                lines, _ = split_front_matter(path.read_text(encoding="utf-8"))
+                meta = front_matter_values(lines)
+                title = meta.get("title", path.stem)
+                state = "draft" if meta.get("draft") is True else meta.get("status", label)
+                result.append(f"{state:8} {path.relative_to(ROOT)}  {title}")
+            except BlogError:
+                result.append(f"invalid  {path.relative_to(ROOT)}")
+        return result
+
+    output = rows(IDEAS_DIR, "idea") + rows(CONTENT_DIR, "live")
+    print("\n".join(output) if output else "No ideas or posts found.")
+
+
+def parser() -> argparse.ArgumentParser:
+    root = argparse.ArgumentParser(
+        prog="blog",
+        description="Capture, research, draft, review, preview, and publish Hugo posts.",
+    )
+    commands = root.add_subparsers(dest="command", required=True)
+
+    idea = commands.add_parser("idea", help="capture a private article idea")
+    idea.add_argument("title")
+    idea.add_argument("--kind", choices=("article", "nugget"), default="article")
+    idea.add_argument("--notes", default="")
+    idea.add_argument(
+        "--point",
+        action="append",
+        default=[],
+        help="required point to preserve; repeat for multiple points",
+    )
+    idea.set_defaults(handler=create_idea)
+
+    research = commands.add_parser("research", help="research an idea with live web search")
+    research.add_argument("idea")
+    research.add_argument("--force", action="store_true", help="replace saved research")
+    research.set_defaults(handler=research_idea)
+
+    draft = commands.add_parser("draft", help="generate a Hugo draft from an idea")
+    draft.add_argument("idea")
+    draft.add_argument("--force", action="store_true", help="replace an existing draft")
+    draft.add_argument(
+        "--refresh-research",
+        action="store_true",
+        help="rerun live research before drafting",
+    )
+    draft.set_defaults(handler=draft_from_idea)
+
+    check = commands.add_parser("check", help="validate a post and run a production build")
+    check.add_argument("post")
+    check.set_defaults(handler=check_post)
+
+    review = commands.add_parser("review", help="generate a private editorial review")
+    review.add_argument("post")
+    review.set_defaults(handler=review_post)
+
+    preview_package = commands.add_parser(
+        "preview-build", help="build an isolated draft package for private Sites hosting"
+    )
+    preview_package.add_argument("post")
+    preview_package.set_defaults(handler=preview_build)
+
+    serve = commands.add_parser("preview-local", help="serve the site locally, including drafts")
+    serve.add_argument("--bind", default="127.0.0.1")
+    serve.add_argument("--port", type=int, default=1313)
+    serve.set_defaults(handler=preview_local)
+
+    ship = commands.add_parser("ship", help="publish one reviewed post")
+    ship.add_argument("post")
+    ship.add_argument("--message", help="Git commit message")
+    ship.add_argument("--yes", action="store_true", help="confirm non-interactively")
+    ship.add_argument("--no-push", action="store_true", help="do not push to GitHub")
+    ship.add_argument("--no-deploy", action="store_true", help="do not sync the Pi web root")
+    ship.set_defaults(handler=ship_post)
+
+    listing = commands.add_parser("list", help="list local ideas, drafts, and live posts")
+    listing.set_defaults(handler=list_content)
+    return root
+
+
+def main() -> int:
+    try:
+        args = parser().parse_args()
+        args.handler(args)
+        return 0
+    except BlogError as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
