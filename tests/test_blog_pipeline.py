@@ -47,6 +47,7 @@ class BlogPipelineTest(unittest.TestCase):
 
     def executable(self, name: str, body: str) -> Path:
         path = self.root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("#!/bin/sh\nset -eu\n" + body, encoding="utf-8")
         path.chmod(0o755)
         return path
@@ -123,8 +124,8 @@ This draft has enough useful words to pass the preview validation gate. It remai
 """,
             encoding="utf-8",
         )
-        fake_hugo = self.executable(
-            "fake-hugo-preview",
+        self.executable(
+            ".blog/bin/hugo",
             """dest=''
 while [ "$#" -gt 0 ]; do
   if [ "$1" = "--destination" ]; then dest="$2"; shift 2; else shift; fi
@@ -134,8 +135,6 @@ printf '%s' '<html>home</html>' > "$dest/index.html"
 printf '%s' '<html>draft</html>' > "$dest/blogs/2026-09-06-private-preview/index.html"
 """,
         )
-        self.env["BLOG_HUGO_BIN"] = str(fake_hugo)
-
         result = self.run_blog("preview-build", str(post))
 
         preview = self.root / ".blog" / "sites-preview"

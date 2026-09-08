@@ -42,6 +42,15 @@ def command_from_env(name: str, default: str) -> list[str]:
     return command
 
 
+def hugo_command() -> list[str]:
+    if "BLOG_HUGO_BIN" in os.environ:
+        return command_from_env("BLOG_HUGO_BIN", "hugo")
+    private_hugo = ROOT / ".blog" / "bin" / "hugo"
+    if private_hugo.is_file() and os.access(private_hugo, os.X_OK):
+        return [str(private_hugo)]
+    return ["hugo"]
+
+
 def run(
     command: Sequence[str],
     *,
@@ -506,7 +515,7 @@ def validate_post(path: Path, *, publishing: bool) -> list[str]:
 def build_site(
     destination: Path, *, drafts: bool = False, base_url: str | None = None
 ) -> None:
-    hugo = command_from_env("BLOG_HUGO_BIN", "hugo")
+    hugo = hugo_command()
     command = hugo + [
         "--gc",
         "--minify",
@@ -604,7 +613,7 @@ def preview_build(args: argparse.Namespace) -> None:
 
 
 def preview_local(args: argparse.Namespace) -> None:
-    hugo = command_from_env("BLOG_HUGO_BIN", "hugo")
+    hugo = hugo_command()
     command = hugo + [
         "server",
         "--buildDrafts",

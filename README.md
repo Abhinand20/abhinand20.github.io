@@ -33,6 +33,9 @@ chmod +x scripts/blog
 ./scripts/blog --help
 ```
 
+If Hugo is not installed system-wide, an executable at `.blog/bin/hugo` is used
+automatically. That private tool directory is ignored by Git.
+
 Codex reuses the CLI login for local non-interactive research and generation. No
 API key is stored in this repository. The private preview Site is already linked
 through `.openai/hosting.json`; keep that file in the repository.
